@@ -40,10 +40,13 @@ Pilih **satu** backend hardware sesuai perangkat yang digunakan (paket `jupyterl
 
 ## Verifikasi GPU / PyTorch
 
+> [!IMPORTANT]
+> Secara default, `uv run <perintah>` akan menjalankan *re-sync* tanpa `--extra` (yang dapat menimpa `torch+rocm` dengan `torch` default dari PyPI). Selalu gunakan `--no-sync` (setelah `uv sync --extra <target>`) atau sertakan `--extra <target>`, atau aktifkan `.venv` terlebih dahulu (`source .venv/bin/activate`).
+
 Cek apakah PyTorch dan akselerator terdeteksi dengan benar:
 
 ```bash
-uv run python -c "
+uv run --no-sync python -c "
 import torch
 print('PyTorch:', torch.__version__)
 print('CUDA/ROCm available:', torch.cuda.is_available())
@@ -63,12 +66,13 @@ else:
 
 ### 1. Jalankan JupyterLab langsung via `uv`
 ```bash
-uv run jupyter lab
+uv run --no-sync jupyter lab
+# atau: uv run --extra rocm jupyter lab
 ```
 
 ### 2. *(Opsional)* Daftarkan Kernel ke Jupyter / VS Code
 ```bash
-uv run python -m ipykernel install --user --name studio3-smsa --display-name "Python 3.12 (Studio3 SmSA)"
+uv run --no-sync python -m ipykernel install --user --name studio3-smsa --display-name "Python 3.12 (Studio3 SmSA)"
 ```
 
 ---
@@ -77,13 +81,13 @@ uv run python -m ipykernel install --user --name studio3-smsa --display-name "Py
 
 ### Eksekusi notebook secara headless via CLI
 ```bash
-uv run jupyter nbconvert --to notebook --execute --inplace studio3_smsa_finetuning.ipynb
+uv run --no-sync jupyter nbconvert --to notebook --execute --inplace studio3_smsa_finetuning.ipynb
 ```
 
 ### Ekspor ke PDF (WebPDF — tanpa perlu LaTeX/TeXLive)
-Pertama kali dijalankan, tambahkan `--allow-chromium-download` (atau jalankan `uv run playwright install chromium` sekali saja):
+Pertama kali dijalankan, tambahkan `--allow-chromium-download` (atau jalankan `uv run --no-sync playwright install chromium` sekali saja):
 ```bash
-uv run jupyter nbconvert --to webpdf --allow-chromium-download \
+uv run --no-sync jupyter nbconvert --to webpdf --allow-chromium-download \
   --output STUDIO3_KelompokX_Nama1_Nama2.pdf \
   studio3_smsa_finetuning.ipynb
 ```
@@ -91,10 +95,10 @@ uv run jupyter nbconvert --to webpdf --allow-chromium-download \
 ### Ekspor ke HTML / LaTeX PDF
 ```bash
 # HTML
-uv run jupyter nbconvert --to html studio3_smsa_finetuning.ipynb
+uv run --no-sync jupyter nbconvert --to html studio3_smsa_finetuning.ipynb
 
 # LaTeX PDF (membutuhkan pandoc + xelatex)
-uv run jupyter nbconvert --to pdf studio3_smsa_finetuning.ipynb
+uv run --no-sync jupyter nbconvert --to pdf studio3_smsa_finetuning.ipynb
 ```
 
 ---
@@ -103,8 +107,8 @@ uv run jupyter nbconvert --to pdf studio3_smsa_finetuning.ipynb
 
 - **Lint & format (termasuk `.ipynb`)**:
   ```bash
-  uv run ruff check .
-  uv run ruff format .
+  uv run --no-sync ruff check .
+  uv run --no-sync ruff format .
   ```
 - **Perbarui lockfile lintas platform** setelah mengubah `pyproject.toml`:
   ```bash
