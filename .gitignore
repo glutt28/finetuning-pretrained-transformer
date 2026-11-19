@@ -1,0 +1,29 @@
+# Virtual environments & uv
+.venv/
+.uv-cache/
+
+# Python caches & build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# Model checkpoints & HuggingFace local caches
+checkpoints/
+models/
+.cache/
+wandb/
+gpucore.*
+
+# OS files
+.DS_Store
+Thumbs.db

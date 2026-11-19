@@ -1,0 +1,110 @@
+[project]
+name = "studio3-smsa-finetuning"
+version = "0.1.0"
+description = "Fine-Tuning Pretrained Transformer (BERT, DistilBERT, IndoBERT) pada dataset SmSA IndoNLU — Studio Proyek 3"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+
+dependencies = [
+    "transformers>=4.46,<5",
+    "datasets>=3.0",
+    "accelerate>=1.0",
+    "huggingface-hub>=0.26",
+    "safetensors>=0.4",
+    "scikit-learn>=1.5",
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "matplotlib>=3.9",
+    "seaborn>=0.13",
+    "scipy>=1.14",
+    "tqdm>=4.66",
+]
+
+# Pilih SALAH SATU hardware backend saat menjalankan `uv sync --extra <target>`:
+#   - cpu   : Linux (x86_64/aarch64), Windows (x86_64), macOS Apple Silicon (MPS)
+#   - rocm  : AMD ROCm 6.4 GPU (Linux x86_64 — cocok untuk RX 6700 XT / gfx1030)
+#   - cu128 : NVIDIA CUDA 12.8 GPU (Linux x86_64/aarch64 & Windows x86_64)
+[project.optional-dependencies]
+cpu = [
+    "torch>=2.9.1,<2.10",
+]
+rocm = [
+    "torch>=2.9.1,<2.10; sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "pytorch-triton-rocm; sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+cu128 = [
+    "torch>=2.9.1,<2.10; sys_platform == 'linux' or sys_platform == 'win32'",
+]
+
+# PEP 735 dependency groups (terpasang otomatis via default-groups)
+[dependency-groups]
+notebook = [
+    "jupyterlab>=4.3",
+    "notebook>=7.2",
+    "ipykernel>=6.29",
+    "ipywidgets>=8.1",
+    "jupyterlab-widgets>=3.0",
+    "nbconvert[webpdf]>=7.16",
+    "nbclient>=0.10",
+    "nbformat>=5.10",
+]
+dev = [
+    "ruff>=0.9",
+    "nbstripout>=0.8",
+    "pytest>=8.3",
+]
+
+[tool.uv]
+package = false
+default-groups = ["notebook", "dev"]
+
+# Target platform untuk universal lockfile (`uv.lock`)
+environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "sys_platform == 'linux' and platform_machine == 'aarch64'",
+    "sys_platform == 'win32' and platform_machine == 'AMD64'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+
+# Deklarasi hardware extras saling eksklusif agar uv.lock multi-platform bersih
+conflicts = [
+    [
+        { extra = "cpu" },
+        { extra = "rocm" },
+        { extra = "cu128" },
+    ],
+]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-rocm64", extra = "rocm", marker = "sys_platform == 'linux' and platform_machine == 'x86_64'" },
+    { index = "pytorch-cu128", extra = "cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+pytorch-triton-rocm = [
+    { index = "pytorch-rocm64", extra = "rocm", marker = "sys_platform == 'linux' and platform_machine == 'x86_64'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-rocm64"
+url = "https://download.pytorch.org/whl/rocm6.4"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
